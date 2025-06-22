@@ -7,11 +7,18 @@ import (
 )
 
 func main() {
-	g := NewGame()
-	err := g.JoinPlayer(Player{ID: 123})
+	manager, err := NewGameManager()
+	if err != nil {
+		log.Fatal(err)
+	}
+	game, err := manager.CreateGame()
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = game.JoinPlayer()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("%#v", g)
+	fmt.Printf("%#v", game)
 }
