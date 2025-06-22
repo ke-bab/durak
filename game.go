@@ -6,7 +6,8 @@ import (
 	"sync"
 )
 
-const maxPlayers = 6
+const maxPlayers = 4 // in one game
+const maxGames = 100
 
 type Game struct {
 	Players map[int]Player
