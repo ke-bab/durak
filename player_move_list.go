@@ -1,0 +1,30 @@
+package durak
+
+type MoveOrder struct {
+	Current *Player
+	Next    *MoveOrder
+}
+
+// NewMoveOrder makes circular single linked list which used to define order for player moves.
+func NewMoveOrder(list map[int]*Player) *MoveOrder {
+	var first *MoveOrder
+	var prev *MoveOrder
+	for _, p := range list {
+		current := &MoveOrder{
+			Current: p,
+			Next:    nil,
+		}
+		if prev != nil {
+			// we are not in first element
+			prev.Next = current
+		} else {
+			// we are in first element
+			first = current
+		}
+		prev = current
+	}
+	// last node
+	prev.Next = first
+
+	return first
+}

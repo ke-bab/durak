@@ -8,10 +8,13 @@ import (
 
 const maxPlayers = 4 // in one game
 const maxGames = 100
+const minPlayersForStart = 2
 
 type Game struct {
 	Players      map[int]*Player
 	State        GameState
+	CardsOnTable CardsOnTable
+	moveOrder    *MoveOrder
 	lock         sync.Mutex
 	playerIdPool *IdPool
 }
@@ -21,6 +24,7 @@ func NewGame(pool *IdPool) *Game {
 		Players:      make(map[int]*Player, maxPlayers),
 		State:        Open,
 		playerIdPool: pool,
+		CardsOnTable: make([]*Card, 0),
 	}
 }
 
@@ -42,7 +46,7 @@ func (g *Game) JoinPlayer() (*Player, error) {
 	}
 
 	if g.hasPlayer(playerId) {
-		return nil, errors.New(fmt.Sprintf("player %d already joined", playerId))
+		return nil, fmt.Errorf("player %d already joined", playerId)
 	}
 
 	newPlayer := NewPlayer(playerId)
@@ -65,19 +69,49 @@ func (g *Game) PlayerIsReady(id int) error {
 
 	player, ok := g.Players[id]
 	if !ok {
-		return errors.New(fmt.Sprintf("player %d not found", id))
+		return fmt.Errorf("player %d not found", id)
 	}
 
 	player.IsReady = true
 
-	if g.everyoneIsReady() {
+	if g.isEnoughPlayersForStart() && g.isEveryoneReady() {
 		g.start()
 	}
 
 	return nil
 }
 
-func (g *Game) everyoneIsReady() bool {
+func (g *Game) PlayerPlaysCard(id int, card *Card) error {
+	if g.State != Play {
+		return errors.New("game is in wrong state for playing cards")
+	}
+
+	player, ok := g.Players[id]
+	if !ok {
+		return fmt.Errorf("player %d not found", id)
+	}
+
+	if g.moveOrder.Current != player {
+		return fmt.Errorf("it is not player's %d turn", id)
+	}
+
+	if !player.hasCard(card) {
+		return fmt.Errorf("player %d has no card %s %s", player.ID, card.Rank, card.Suit)
+	}
+
+	// player's turn
+	player.playCard(card, g.CardsOnTable)
+}
+
+func (g *Game) isEnoughPlayersForStart() bool {
+	if len(g.Players) >= minPlayersForStart {
+		return true
+	}
+
+	return false
+}
+
+func (g *Game) isEveryoneReady() bool {
 	for _, p := range g.Players {
 		if !p.IsReady {
 			return false
@@ -89,6 +123,7 @@ func (g *Game) everyoneIsReady() bool {
 
 func (g *Game) start() {
 	g.State = Play
+	g.moveOrder = NewMoveOrder(g.Players)
 }
 
 func (g *Game) hasPlayer(id int) bool {
