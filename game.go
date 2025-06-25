@@ -13,7 +13,7 @@ const minPlayersForStart = 2
 type Game struct {
 	Players      map[int]*Player
 	State        GameState
-	CardsOnTable CardsOnTable
+	CardsOnTable []*Card
 	moveOrder    *MoveOrder
 	lock         sync.Mutex
 	playerIdPool *IdPool
@@ -26,6 +26,14 @@ func NewGame(pool *IdPool) *Game {
 		playerIdPool: pool,
 		CardsOnTable: make([]*Card, 0),
 	}
+}
+
+func (g *Game) DoAction(a Action) error {
+	if a.CanBeApplied(g) {
+		return a.Apply(g)
+	}
+
+	return fmt.Errorf("action %s can not be applied to game in state %s", a.Name(), g.State)
 }
 
 func (g *Game) JoinPlayer() (*Player, error) {
@@ -100,7 +108,12 @@ func (g *Game) PlayerPlaysCard(id int, card *Card) error {
 	}
 
 	// player's turn
-	player.playCard(card, g.CardsOnTable)
+	err := player.playCard(card, g.CardsOnTable)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (g *Game) isEnoughPlayersForStart() bool {

@@ -12,8 +12,12 @@ func NewCard(s Suit, r Rank) *Card {
 	}
 }
 
-type CardsOnTable []*Card
+func (c *Card) isSame(card *Card) bool {
+	return c.Suit == card.Suit && c.Rank == card.Rank
+}
 
-func (cards *CardsOnTable) add(c *Card) {
+type CardCollection []*Card
+
+func (cards *CardCollection) add(c *Card) {
 	*cards = append(*cards, c)
 }
