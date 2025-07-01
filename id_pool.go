@@ -25,7 +25,7 @@ func NewIdPool(maxId int) (*IdPool, error) {
 	return &IdPool{pool: pool, max: maxId}, nil
 }
 
-func (p *IdPool) getId() (int, bool) {
+func (p *IdPool) reserveId() (int, bool) {
 	select {
 	case id := <-p.pool:
 		return id, true
@@ -39,7 +39,10 @@ func (p *IdPool) releaseId(id int) error {
 		return errors.New(fmt.Sprintf("id is out of bounds: min %d, max %d", minId, p.max))
 	}
 	// maybe add unique check?
-	p.pool <- id
-
-	return nil
+	select {
+	case p.pool <- id:
+		return nil
+	default:
+		return fmt.Errorf("cannot release id %d: channel is full", id)
+	}
 }

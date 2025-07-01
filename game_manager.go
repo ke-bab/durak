@@ -32,7 +32,7 @@ func NewGameManager() (*GameManager, error) {
 
 func (gm *GameManager) CreateGame() (*Game, error) {
 	game := NewGame(gm.playerIdPool)
-	gameId, ok := gm.gameIdPool.getId()
+	gameId, ok := gm.gameIdPool.reserveId()
 	if !ok {
 		return nil, errors.New("no free id for new game")
 	}

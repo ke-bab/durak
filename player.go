@@ -24,6 +24,7 @@ func (p *Player) hasCard(c *Card) bool {
 }
 
 func (p *Player) removeCard(c *Card) error {
+	// todo: func must not return error, check before
 	index, ok := p.findCardIndex(c)
 	if !ok {
 		return fmt.Errorf("card %s %s cannot be removed", c.Rank, c.Suit)
@@ -42,14 +43,4 @@ func (p *Player) findCardIndex(c *Card) (int, bool) {
 	}
 
 	return 0, false
-}
-
-func (p *Player) playCard(c *Card, cards CardCollection) error {
-	err := p.removeCard(c)
-	if err != nil {
-		return err
-	}
-	cards.add(c)
-
-	return nil
 }

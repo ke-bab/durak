@@ -6,6 +6,7 @@ type MoveOrder struct {
 }
 
 // NewMoveOrder makes circular single linked list which used to define order for player moves.
+// p1 -> p2 -> p3 -> p4 -> p1 and so on.
 func NewMoveOrder(list map[int]*Player) *MoveOrder {
 	var first *MoveOrder
 	var prev *MoveOrder

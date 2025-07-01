@@ -15,10 +15,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = game.JoinPlayer()
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	fmt.Printf("%#v", game)
 }
