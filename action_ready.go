@@ -6,8 +6,7 @@ import (
 )
 
 type ReadyAction struct {
-	PlayerId int
-	player   *Player
+	Player *Player
 }
 
 func (a *ReadyAction) CanBeApplied(g *Game) (bool, error) {
@@ -15,17 +14,15 @@ func (a *ReadyAction) CanBeApplied(g *Game) (bool, error) {
 		return false, errors.New("game is not open for players")
 	}
 
-	player, ok := g.Players[a.PlayerId]
-	if !ok {
-		return false, fmt.Errorf("player %d not found", a.PlayerId)
+	if !g.hasPlayer(a.Player) {
+		return false, fmt.Errorf("player %d not found", a.Player.ID)
 	}
-	a.player = player
 
 	return true, nil
 }
 
 func (a *ReadyAction) Apply(g *Game) {
-	a.player.IsReady = true
+	a.Player.IsReady = true
 
 	if g.isEnoughPlayersForStart() && g.isEveryoneReady() {
 		g.start()

@@ -73,9 +73,11 @@ func (g *Game) dealCardsOnStart() {
 	}
 }
 
-func (g *Game) hasPlayer(id int) bool {
-	if _, ok := g.Players[id]; ok {
-		return true
+func (g *Game) hasPlayer(p *Player) bool {
+	for _, player := range g.Players {
+		if player == p {
+			return true
+		}
 	}
 
 	return false

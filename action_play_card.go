@@ -6,10 +6,9 @@ import (
 )
 
 type PlayCardAction struct {
-	PlayerId int
-	Card     *Card
+	Player *Player
+	Card   *Card
 	//
-	player    *Player
 	cardIndex int
 }
 
@@ -18,19 +17,17 @@ func (a *PlayCardAction) CanBeApplied(g *Game) (bool, error) {
 		return false, errors.New("game is in wrong state for playing cards")
 	}
 
-	player, ok := g.Players[a.PlayerId]
-	if !ok {
-		return false, fmt.Errorf("player %d not found", a.PlayerId)
-	}
-	a.player = player
-
-	if g.moveOrder.Current != player {
-		return false, fmt.Errorf("it is not player's %d turn", a.PlayerId)
+	if !g.hasPlayer(a.Player) {
+		return false, fmt.Errorf("player %d not found", a.Player.ID)
 	}
 
-	index, ok := player.hasCard(a.Card)
+	if g.moveOrder.Current != a.Player {
+		return false, fmt.Errorf("it is not player's %d turn", a.Player.ID)
+	}
+
+	index, ok := a.Player.hasCard(a.Card)
 	if !ok {
-		return false, fmt.Errorf("player %d has no Card %s %s", player.ID, a.Card.Rank, a.Card.Suit)
+		return false, fmt.Errorf("player %d has no Card %s %s", a.Player.ID, a.Card.Rank, a.Card.Suit)
 	}
 	a.cardIndex = index
 
@@ -40,7 +37,7 @@ func (a *PlayCardAction) CanBeApplied(g *Game) (bool, error) {
 func (a *PlayCardAction) Apply(g *Game) {
 	cards := CardCollection(g.CardsOnTable)
 	cards.add(a.Card)
-	a.player.removeExistingCard(a.cardIndex)
+	a.Player.removeExistingCard(a.cardIndex)
 }
 
 func (a *PlayCardAction) Name() ActionName {

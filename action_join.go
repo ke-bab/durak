@@ -6,7 +6,7 @@ import (
 )
 
 type JoinAction struct {
-	PlayerId int
+	Player *Player
 }
 
 func (a *JoinAction) CanBeApplied(g *Game) (bool, error) {
@@ -18,26 +18,15 @@ func (a *JoinAction) CanBeApplied(g *Game) (bool, error) {
 		return false, errors.New("game already full")
 	}
 
-	playerId, ok := g.playerIdPool.reserveId()
-	if !ok {
-		return false, errors.New("no free id in player id pool")
-	}
-	a.PlayerId = playerId
-
-	if g.hasPlayer(playerId) {
-		err := g.playerIdPool.releaseId(playerId)
-		if err != nil {
-			return false, err
-		}
-		return false, fmt.Errorf("player %d already joined", playerId)
+	if g.hasPlayer(a.Player) {
+		return false, fmt.Errorf("player %d already joined", a.Player.ID)
 	}
 
 	return true, nil
 }
 
 func (a *JoinAction) Apply(g *Game) {
-	newPlayer := NewPlayer(a.PlayerId)
-	g.Players[a.PlayerId] = newPlayer
+	g.Players[a.Player.ID] = a.Player
 
 	if len(g.Players) == maxPlayers {
 		g.start()

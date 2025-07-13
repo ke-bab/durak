@@ -25,7 +25,7 @@ func NewIdPool(maxId int) (*IdPool, error) {
 	return &IdPool{pool: pool, max: maxId}, nil
 }
 
-func (p *IdPool) reserveId() (int, bool) {
+func (p *IdPool) Reserve() (int, bool) {
 	select {
 	case id := <-p.pool:
 		return id, true
@@ -34,7 +34,7 @@ func (p *IdPool) reserveId() (int, bool) {
 	}
 }
 
-func (p *IdPool) releaseId(id int) error {
+func (p *IdPool) Release(id int) error {
 	if id < minId || id > p.max {
 		return errors.New(fmt.Sprintf("id is out of bounds: min %d, max %d", minId, p.max))
 	}
