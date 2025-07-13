@@ -6,9 +6,10 @@ import (
 )
 
 type PlayCardAction struct {
-	playerId int
-	card     *Card
-	player   *Player
+	playerId  int
+	card      *Card
+	player    *Player
+	cardIndex int
 }
 
 func (a *PlayCardAction) CanBeApplied(g *Game) (bool, error) {
@@ -26,17 +27,19 @@ func (a *PlayCardAction) CanBeApplied(g *Game) (bool, error) {
 		return false, fmt.Errorf("it is not player's %d turn", a.playerId)
 	}
 
-	if !player.hasCard(a.card) {
+	index, ok := player.hasCard(a.card)
+	if !ok {
 		return false, fmt.Errorf("player %d has no card %s %s", player.ID, a.card.Rank, a.card.Suit)
 	}
+	a.cardIndex = index
 
 	return true, nil
 }
 
 func (a *PlayCardAction) Apply(g *Game) {
-	a.player.removeCard(a.card)
 	cards := CardCollection(g.CardsOnTable)
 	cards.add(a.card)
+	a.player.removeExistingCard(a.cardIndex)
 }
 
 func (a *PlayCardAction) Name() ActionName {

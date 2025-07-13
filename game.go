@@ -12,6 +12,7 @@ type Game struct {
 	Players      map[int]*Player
 	State        GameState
 	CardsOnTable []*Card
+
 	moveOrder    *MoveOrder
 	lock         sync.Mutex
 	playerIdPool *IdPool

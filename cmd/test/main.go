@@ -16,5 +16,23 @@ func main() {
 		log.Fatal(err)
 	}
 
+	err = game.DoAction(&JoinAction{PlayerId: 1})
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = game.DoAction(&JoinAction{PlayerId: 2})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = game.DoAction(&ReadyAction{PlayerId: 1})
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = game.DoAction(&ReadyAction{PlayerId: 2})
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	fmt.Printf("%#v", game)
 }
