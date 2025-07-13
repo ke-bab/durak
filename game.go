@@ -14,7 +14,8 @@ type Game struct {
 	CardsOnTable []*Card         `json:"cardsOnTable"`
 	Deck         []*Card         `json:"deck"`
 
-	moveOrder    *MoveOrder
+	attacker     *Player
+	defender     *Player
 	lock         sync.Mutex
 	playerIdPool *IdPool
 }
@@ -62,7 +63,8 @@ func (g *Game) isEveryoneReady() bool {
 
 func (g *Game) start() {
 	g.State = Play
-	g.moveOrder = NewMoveOrder(g.Players)
+	g.attacker = g.Players[0]
+	g.defender = g.Players[1]
 	g.dealCardsOnStart()
 }
 

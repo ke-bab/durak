@@ -21,7 +21,7 @@ func (a *PlayCardAction) CanBeApplied(g *Game) (bool, error) {
 		return false, fmt.Errorf("player %d not found", a.Player.ID)
 	}
 
-	if g.moveOrder.Current != a.Player {
+	if g.attacker != a.Player {
 		return false, fmt.Errorf("it is not player's %d turn", a.Player.ID)
 	}
 

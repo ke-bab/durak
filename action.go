@@ -3,9 +3,11 @@ package durak
 type ActionName string
 
 const (
-	ActionJoin     = "join"
-	ActionReady    = "ready"
-	ActionPlayCard = "play_card"
+	ActionJoin     ActionName = "join"
+	ActionReady    ActionName = "ready"
+	ActionPlayCard ActionName = "play_card"
+	ActionBeatCard ActionName = "beat_card"
+	ActionTakeCard ActionName = "take_card"
 )
 
 type Action interface {
