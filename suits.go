@@ -9,6 +9,10 @@ const (
 	Spades   Suit = "spades"
 )
 
+func suits() []Suit {
+	return []Suit{Hearts, Diamonds, Clubs, Spades}
+}
+
 type Rank string
 
 const (
@@ -22,3 +26,7 @@ const (
 	King  Rank = "king"
 	Ace   Rank = "ace"
 )
+
+func ranks() []Rank {
+	return []Rank{Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace}
+}

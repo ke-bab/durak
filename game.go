@@ -12,6 +12,7 @@ type Game struct {
 	Players      map[int]*Player
 	State        GameState
 	CardsOnTable []*Card
+	Deck         []*Card
 
 	moveOrder    *MoveOrder
 	lock         sync.Mutex
@@ -24,6 +25,7 @@ func NewGame(pool *IdPool) *Game {
 		State:        Open,
 		playerIdPool: pool,
 		CardsOnTable: make([]*Card, 0),
+		Deck:         initDeck(),
 	}
 }
 
@@ -61,6 +63,14 @@ func (g *Game) isEveryoneReady() bool {
 func (g *Game) start() {
 	g.State = Play
 	g.moveOrder = NewMoveOrder(g.Players)
+	g.dealCardsOnStart()
+}
+
+func (g *Game) dealCardsOnStart() {
+	deck := CardCollection(g.Deck)
+	for _, p := range g.Players {
+		p.Hand = deck.takeXCards(6)
+	}
 }
 
 func (g *Game) hasPlayer(id int) bool {
@@ -77,4 +87,17 @@ func (g *Game) isFull() bool {
 	}
 
 	return false
+}
+
+func initDeck() []*Card {
+	suits := suits()
+	ranks := ranks()
+	d := make([]*Card, len(suits)*len(ranks))
+	for _, s := range suits {
+		for _, r := range ranks {
+			d = append(d, NewCard(s, r))
+		}
+	}
+
+	return d
 }

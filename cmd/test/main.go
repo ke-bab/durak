@@ -33,6 +33,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	err = game.DoAction(&PlayCardAction{
+		PlayerId: 1,
+		Card:     &Card{Suit: Hearts, Rank: Eight},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	fmt.Printf("%#v", game)
 }

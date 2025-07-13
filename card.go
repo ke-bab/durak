@@ -21,3 +21,13 @@ type CardCollection []*Card
 func (cards *CardCollection) add(c *Card) {
 	*cards = append(*cards, c)
 }
+
+// we assume that we have enough cards to do that.
+// todo: try safer approach using state struct.
+func (cards *CardCollection) takeXCards(n int) []*Card {
+	firstXCards := (*cards)[:n]
+	// remove them from deck
+	*cards = (*cards)[n:]
+
+	return firstXCards
+}
