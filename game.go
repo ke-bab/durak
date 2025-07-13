@@ -9,10 +9,10 @@ const maxGames = 100
 const minPlayersForStart = 2
 
 type Game struct {
-	Players      map[int]*Player
-	State        GameState
-	CardsOnTable []*Card
-	Deck         []*Card
+	Players      map[int]*Player `json:"players"`
+	State        GameState       `json:"state"`
+	CardsOnTable []*Card         `json:"cardsOnTable"`
+	Deck         []*Card         `json:"deck"`
 
 	moveOrder    *MoveOrder
 	lock         sync.Mutex

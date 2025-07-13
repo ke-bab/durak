@@ -1,8 +1,8 @@
 package durak
 
 type Card struct {
-	Suit Suit
-	Rank Rank
+	Suit Suit `json:"suit"`
+	Rank Rank `json:"rank"`
 }
 
 func NewCard(s Suit, r Rank) *Card {

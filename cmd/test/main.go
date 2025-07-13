@@ -2,6 +2,7 @@ package main
 
 import (
 	. "durak"
+	"encoding/json"
 	"fmt"
 	"log"
 )
@@ -33,11 +34,17 @@ func main() {
 	})
 	fatal(err)
 
-	fmt.Printf("%#v", game)
+	printGame(game)
 }
 
 func fatal(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func printGame(g *Game) {
+	str, err := json.MarshalIndent(g, "", "  ")
+	fatal(err)
+	fmt.Println(string(str))
 }

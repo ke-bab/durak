@@ -3,8 +3,8 @@ package durak
 import "fmt"
 
 type Player struct {
-	ID      int
-	IsReady bool
+	ID      int  `json:"ID"`
+	IsReady bool `json:"isReady"`
 	Hand    []*Card
 }
 
