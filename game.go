@@ -92,7 +92,7 @@ func (g *Game) isFull() bool {
 func initDeck() []*Card {
 	suits := suits()
 	ranks := ranks()
-	d := make([]*Card, len(suits)*len(ranks))
+	d := make([]*Card, 0, len(suits)*len(ranks))
 	for _, s := range suits {
 		for _, r := range ranks {
 			d = append(d, NewCard(s, r))
