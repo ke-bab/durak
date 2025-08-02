@@ -6,14 +6,16 @@ import (
 	"sync"
 )
 
-type GameManager struct {
+// GameStore is struct which holds list of all existing games on this server and
+// allows to add or remove games to that list.
+type GameStore struct {
 	Games        map[int]*Game
 	lock         sync.Mutex
 	gameIdPool   *IdPool
 	playerIdPool *IdPool
 }
 
-func NewGameManager() (*GameManager, error) {
+func NewGameStore() (*GameStore, error) {
 	playerPool, err := NewIdPool(maxGames * maxPlayers)
 	if err != nil {
 		return nil, err
@@ -23,15 +25,15 @@ func NewGameManager() (*GameManager, error) {
 		return nil, err
 	}
 
-	return &GameManager{
+	return &GameStore{
 		Games:        make(map[int]*Game),
 		playerIdPool: playerPool,
 		gameIdPool:   gamePool,
 	}, nil
 }
 
-func (gm *GameManager) CreateGame() (*Game, error) {
-	game := NewGame(gm.playerIdPool)
+func (gm *GameStore) CreateGame() (*Game, error) {
+	game := NewGame()
 	gameId, ok := gm.gameIdPool.Reserve()
 	if !ok {
 		return nil, errors.New("no free id for new game")

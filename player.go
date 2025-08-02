@@ -1,23 +1,16 @@
 package durak
 
-import "fmt"
-
 type Player struct {
 	ID      int  `json:"ID"`
 	IsReady bool `json:"isReady"`
 	Hand    []*Card
 }
 
-func NewPlayer(pool *IdPool) (*Player, error) {
-	id, ok := pool.Reserve()
-	if !ok {
-		return nil, fmt.Errorf("no ids in pool")
-	}
-
+func NewPlayer(id int) *Player {
 	return &Player{
 		ID:   id,
 		Hand: make([]*Card, 0),
-	}, nil
+	}
 }
 
 func (p *Player) hasCard(c *Card) (int, bool) {

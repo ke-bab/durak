@@ -1,101 +1,39 @@
 package durak
 
-import (
-	"sync"
-)
-
-const maxPlayers = 4 // in one game
+const maxPlayers = 2
 const maxGames = 100
-const minPlayersForStart = 2
 
+// Game is a pure state model of game.
+// It has only fields which represents different game states.
+// Validity of these states is done by "state" type structs.
 type Game struct {
-	Players      map[int]*Player `json:"players"`
-	State        GameState       `json:"state"`
-	CardsOnTable []*Card         `json:"cardsOnTable"`
-	Deck         []*Card         `json:"deck"`
-
-	attacker     *Player
-	defender     *Player
-	lock         sync.Mutex
-	playerIdPool *IdPool
+	Player1  *Player
+	Player2  *Player
+	State    GameState `json:"state"`
+	Deck     Deck      `json:"deck"`
+	Attacker *Player
 }
 
-func NewGame(pool *IdPool) *Game {
+func NewGame() *Game {
 	return &Game{
-		Players:      make(map[int]*Player, maxPlayers),
-		State:        Open,
-		playerIdPool: pool,
-		CardsOnTable: make([]*Card, 0),
-		Deck:         initDeck(),
+		State: Open,
+		Deck:  initDeck(),
 	}
-}
-
-func (g *Game) DoAction(a Action) error {
-	ok, err := a.CanBeApplied(g)
-	if ok {
-		g.lock.Lock()
-		defer g.lock.Unlock()
-
-		a.Apply(g)
-		return nil
-	}
-
-	return err
-}
-
-func (g *Game) isEnoughPlayersForStart() bool {
-	if len(g.Players) >= minPlayersForStart {
-		return true
-	}
-
-	return false
-}
-
-func (g *Game) isEveryoneReady() bool {
-	for _, p := range g.Players {
-		if !p.IsReady {
-			return false
-		}
-	}
-
-	return true
 }
 
 func (g *Game) start() {
 	g.State = Play
-	g.attacker = g.Players[0]
-	g.defender = g.Players[1]
+	g.Attacker = g.Player1
 	g.dealCardsOnStart()
 }
 
 func (g *Game) dealCardsOnStart() {
 	deck := CardCollection(g.Deck)
-	for _, p := range g.Players {
-		p.Hand = deck.takeXCards(6)
-	}
-}
-
-func (g *Game) hasPlayer(p *Player) bool {
-	for _, player := range g.Players {
-		if player == p {
-			return true
-		}
-	}
-
-	return false
-}
-
-func (g *Game) isFull() bool {
-	if len(g.Players) >= maxPlayers {
-		return true
-	}
-
-	return false
+	g.Player1.Hand = deck.takeXCards(6)
+	g.Player2.Hand = deck.takeXCards(6)
 }
 
 func initDeck() []*Card {
-	suits := suits()
-	ranks := ranks()
 	d := make([]*Card, 0, len(suits)*len(ranks))
 	for _, s := range suits {
 		for _, r := range ranks {
@@ -105,3 +43,21 @@ func initDeck() []*Card {
 
 	return d
 }
+
+type Deck []*Card
+
+func (d Deck) isFull() bool {
+	if len(d) == len(suits)*len(ranks) {
+		return true
+	}
+
+	return false
+}
+
+type GameState string
+
+const (
+	Open   GameState = "open"
+	Play   GameState = "play"
+	Closed GameState = "closed"
+)

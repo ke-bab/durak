@@ -8,31 +8,15 @@ import (
 )
 
 func main() {
-	manager, err := NewGameManager()
-	fatal(err)
-	game, err := manager.CreateGame()
-	fatal(err)
+	game := NewGame()
 	pool, err := NewIdPool(100)
 	fatal(err)
-	p1, err := NewPlayer(pool)
+	factory := NewPlayerFactory(pool)
+	p1, err := factory.CreatePlayer()
 	fatal(err)
-	p2, err := NewPlayer(pool)
+	stateCanJoin, err := NewStateCanJoin(game)
 	fatal(err)
-
-	err = game.DoAction(&JoinAction{Player: p1})
-	fatal(err)
-	err = game.DoAction(&JoinAction{Player: p2})
-	fatal(err)
-
-	err = game.DoAction(&ReadyAction{Player: p1})
-	fatal(err)
-	err = game.DoAction(&ReadyAction{Player: p2})
-	fatal(err)
-	err = game.DoAction(&PlayCardAction{
-		Player: p1,
-		Card:   &Card{Suit: Hearts, Rank: Eight},
-	})
-	fatal(err)
+	stateCanJoin.Join(p1)
 
 	printGame(game)
 }
