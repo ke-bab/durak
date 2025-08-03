@@ -1,10 +1,12 @@
 package durak
 
-const maxPlayers = 2
+import (
+	"errors"
+	"fmt"
+)
 
-// Game is a pure state model of game.
-// It has only fields which represents different game states.
-// Validity of these states is done by "state" type structs.
+const playersInGame = 2
+
 type Game struct {
 	Player1  *Player
 	Player2  *Player
@@ -43,10 +45,20 @@ func initDeck() []*Card {
 	return d
 }
 
-type GameState string
+func (g *Game) CanJoinState() (*StateCanJoin, error) {
+	if g.State != Open {
+		if g.State != Open {
+			return nil, errors.New("game is not open")
+		}
+	}
 
-const (
-	Open   GameState = "open"
-	Play   GameState = "play"
-	Closed GameState = "closed"
-)
+	if g.Player1 == nil {
+		return &StateCanJoin{Slot: &g.Player1}, nil
+	}
+
+	if g.Player2 == nil {
+		return &StateCanJoin{Slot: &g.Player2}, nil
+	}
+
+	return nil, fmt.Errorf("no free slot to join")
+}

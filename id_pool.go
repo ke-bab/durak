@@ -3,14 +3,16 @@ package durak
 import (
 	"errors"
 	"fmt"
+	"sync"
 )
 
 const minId = 1
 
-// for this project we don't care about database and stuff so IDs are just numbers in particular range.
+// IdPool for this project we don't care about database and stuff so IDs are just numbers in particular range.
 type IdPool struct {
-	pool map[int]bool
-	max  int
+	pool  map[int]bool
+	mu    sync.Mutex
+	maxId int
 }
 
 func NewIdPool(maxId int) (*IdPool, error) {
@@ -22,24 +24,28 @@ func NewIdPool(maxId int) (*IdPool, error) {
 		pool[i] = true
 	}
 
-	return &IdPool{pool: pool, max: maxId}, nil
+	return &IdPool{pool: pool, maxId: maxId}, nil
 }
 
-func (p *IdPool) Reserve() (int, bool) {
+func (p *IdPool) Acquire() (int, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
 	for k, v := range p.pool {
 		if v == true {
 			p.pool[k] = false
-			return k, true
+			return k, nil
 		}
 	}
 
-	return 0, false
+	return 0, errors.New("no free game id")
 }
 
 func (p *IdPool) Release(id int) error {
-	if id < minId || id > p.max {
-		return errors.New(fmt.Sprintf("id is out of bounds: min %d, max %d", minId, p.max))
+	if id < minId || id > p.maxId {
+		return errors.New(fmt.Sprintf("id is out of bounds: min %d, max %d", minId, p.maxId))
 	}
+	p.mu.Lock()
+	defer p.mu.Unlock()
 	exist, _ := p.pool[id]
 	if exist {
 		return errors.New("id already returned")

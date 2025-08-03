@@ -11,15 +11,35 @@ const maxGames = 100
 // GameManager is struct which holds list of all existing games on this server and
 // allows to add or remove games to that list.
 type GameManager struct {
-	Games map[int]*Game
-	lock  sync.Mutex
+	Games     map[int]*Game
+	mu        sync.RWMutex
+	gameIds   *IdPool
+	playerIds *IdPool
+}
+
+func NewGameManager() (*GameManager, error) {
+	gamePool, err := NewIdPool(maxGames)
+	if err != nil {
+		return nil, err
+	}
+	playerPool, err := NewIdPool(maxGames * playersInGame)
+	if err != nil {
+		return nil, err
+	}
+
+	return &GameManager{
+		Games:     make(map[int]*Game, maxGames),
+		gameIds:   gamePool,
+		playerIds: playerPool,
+	}, nil
 }
 
 func (gm *GameManager) CreateGame() (*Game, error) {
 	game := NewGame()
-	gm.lock.Lock()
-	defer gm.lock.Unlock()
+	gm.mu.Lock()
+	defer gm.mu.Unlock()
 
+	gameId, err := gm.gameIds.Acquire()
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +47,19 @@ func (gm *GameManager) CreateGame() (*Game, error) {
 	if _, ok := gm.Games[gameId]; ok {
 		return nil, errors.New(fmt.Sprintf("game with id %d already exists", gameId))
 	}
+
 	gm.Games[gameId] = game
+
+	return game, nil
+}
+
+func (gm *GameManager) Find(id int) (*Game, error) {
+	gm.mu.RLock()
+	defer gm.mu.Unlock()
+	game, ok := gm.Games[id]
+	if !ok {
+		return nil, errors.New("game not found")
+	}
 
 	return game, nil
 }

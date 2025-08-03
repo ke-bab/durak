@@ -11,7 +11,7 @@ func NewPlayerFactory(pool *IdPool) *PlayerFactory {
 }
 
 func (f *PlayerFactory) CreatePlayer() (*Player, error) {
-	id, ok := f.pool.Reserve()
+	id, ok := f.pool.Acquire()
 	if !ok {
 		return nil, fmt.Errorf("no ids in pool")
 	}

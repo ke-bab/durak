@@ -8,15 +8,14 @@ import (
 )
 
 func main() {
-	game := NewGame()
-	pool, err := NewIdPool(100)
+	gm, err := NewGameManager()
 	fatal(err)
-	factory := NewPlayerFactory(pool)
-	p1, err := factory.CreatePlayer()
+	game, err := gm.CreateGame()
 	fatal(err)
-	stateCanJoin, err := NewStateCanJoin(game)
+	canJoin, err := game.CanJoinState()
 	fatal(err)
-	stateCanJoin.Join(p1)
+	_, err = canJoin.Join()
+	fatal(err)
 
 	printGame(game)
 }
