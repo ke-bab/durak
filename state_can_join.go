@@ -1,9 +1,12 @@
 package durak
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 type StateCanJoin struct {
-	Player *Player
+	Slot **Player
 }
 
 func NewStateCanJoin(g *Game) (*StateCanJoin, error) {
@@ -13,14 +16,17 @@ func NewStateCanJoin(g *Game) (*StateCanJoin, error) {
 		}
 	}
 
-	hasSlot, err := NewStateHasSlot(g)
-	if err != nil {
-		return nil, err
+	if g.Player1 == nil {
+		return &StateCanJoin{Slot: &g.Player1}, nil
 	}
 
-	return &StateCanJoin{Player: hasSlot.Slot}, nil
+	if g.Player2 == nil {
+		return &StateCanJoin{Slot: &g.Player2}, nil
+	}
+
+	return nil, fmt.Errorf("no free slot to join")
 }
 
 func (state *StateCanJoin) Join(p *Player) {
-	state.Player = p
+	*state.Slot = p
 }

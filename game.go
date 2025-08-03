@@ -1,7 +1,6 @@
 package durak
 
 const maxPlayers = 2
-const maxGames = 100
 
 // Game is a pure state model of game.
 // It has only fields which represents different game states.
@@ -42,16 +41,6 @@ func initDeck() []*Card {
 	}
 
 	return d
-}
-
-type Deck []*Card
-
-func (d Deck) isFull() bool {
-	if len(d) == len(suits)*len(ranks) {
-		return true
-	}
-
-	return false
 }
 
 type GameState string
