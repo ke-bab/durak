@@ -8,8 +8,6 @@ import (
 
 const maxGames = 100
 
-// GameManager is struct which holds list of all existing games on this server and
-// allows to add or remove games to that list.
 type GameManager struct {
 	Games     map[int]*Game
 	mu        sync.RWMutex

@@ -8,13 +8,10 @@ import (
 )
 
 func main() {
+
 	gm, err := NewGameManager()
 	fatal(err)
 	game, err := gm.CreateGame()
-	fatal(err)
-	canJoin, err := game.CanJoinState()
-	fatal(err)
-	_, err = canJoin.Join()
 	fatal(err)
 
 	printGame(game)
