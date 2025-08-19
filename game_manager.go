@@ -9,7 +9,8 @@ import (
 const maxGames = 100
 
 type GameManager struct {
-	Games     map[int]*Game
+	Games map[int]*Game
+
 	mu        sync.RWMutex
 	gameIds   *IdPool
 	playerIds *IdPool
@@ -33,16 +34,17 @@ func NewGameManager() (*GameManager, error) {
 }
 
 func (gm *GameManager) CreateGame() (*Game, error) {
-	game := NewGame()
-	gm.mu.Lock()
-	defer gm.mu.Unlock()
-
 	gameId, err := gm.gameIds.Acquire()
 	if err != nil {
 		return nil, err
 	}
 	// return id if something goes wrong
 	defer recoverGameId(gameId, gm)
+
+	game := NewGame(gameId)
+
+	gm.mu.Lock()
+	defer gm.mu.Unlock()
 
 	if _, ok := gm.Games[gameId]; ok {
 		return nil, handleErrGameAlreadyExists(gameId, gm)
@@ -55,7 +57,7 @@ func (gm *GameManager) CreateGame() (*Game, error) {
 
 func (gm *GameManager) Find(id int) (*Game, error) {
 	gm.mu.RLock()
-	defer gm.mu.Unlock()
+	defer gm.mu.RUnlock()
 	game, ok := gm.Games[id]
 	if !ok {
 		return nil, errors.New("game not found")
