@@ -11,6 +11,7 @@ func main() {
 
 	gm, err := NewGameManager()
 	fatal(err)
+
 	game, err := gm.CreateGame()
 	fatal(err)
 
